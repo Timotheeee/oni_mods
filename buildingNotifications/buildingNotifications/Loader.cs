@@ -32,6 +32,25 @@ namespace OxygenNotIncluded.Mods.buildingNotifications
 				loaded = true;
 			}
 		}
+
+		[HarmonyPatch(typeof(LoadScreen), "OnActivate")]
+		public static class LoadScreenOnActivate
+		{
+			internal static void Prefix()
+			{
+				loaded = false;
+                Console.WriteLine("LoadScreen.OnActivate");
+			}
+		}
+		[HarmonyPatch(typeof(MainMenu), "OnActivate")]
+		public static class MainMenuOnActivate
+		{
+			internal static void Prefix()
+			{
+				loaded = false;
+				Console.WriteLine("MainMenu.OnActivate");
+			}
+		}
 		static string[] whitelist = new string[]
 		{
 			"BottleEmptier",
@@ -57,39 +76,41 @@ namespace OxygenNotIncluded.Mods.buildingNotifications
             {
                 if (loaded)
                 {
+
 					string name = __instance.ToString();
-					if (name.Contains("Preview")|| name.Contains("UnderConstruction")) return;
+					if (name.Contains("Preview") || name.Contains("UnderConstruction")) return;
 					name = name.Split(' ')[0].Replace("Complete", "");
 
-                    if (whitelist.Any(name.StartsWith))
-                    {
-
-						//File.AppendAllText("buildings.txt", "\"" + name + "\",\n");
-						string msg = "finished " + name.Replace("HighEnergyParticle", "Radbolt").Replace("Logic", "");
-						Console.WriteLine(msg);
-
-						Message i = new GenericMessage(msg, msg, msg);
-						Messenger.Instance.QueueMessage(i);
-						last5.Enqueue(i);
-						Console.WriteLine("last5.Count " + last5.Count);
-						if (last5.Count > 5)
-                        {
-							Message toRemove = last5.Dequeue();
-							//doesn't work
-							Messenger.Instance.DequeueMessage();
-
-
-						}
-						
-
+					if (whitelist.Any(name.StartsWith))
+					{
+						string msg = "Finished " + name.Replace("HighEnergyParticle", "Radbolt").Replace("Logic", "");
+						var notification = new Notification(msg, NotificationType.Good, click_focus: __instance.transform);
+						__instance.gameObject.AddOrGet<Notifier>().Add(notification);
 					}
 
 
 
-					//Console.WriteLine("notifier==null " + (notifier == null));
-					//var notifier = Tutorial.Instance.noti
-					//if (notifier != null)
-					//	notifier.Add(new Notification("finished building " + __instance.ToString(), NotificationType.Event));
+					//string name = __instance.ToString();
+					//if (name.Contains("Preview")|| name.Contains("UnderConstruction")) return;
+					//name = name.Split(' ')[0].Replace("Complete", "");
+
+     //               if (whitelist.Any(name.StartsWith))
+     //               {
+					//	//File.AppendAllText("buildings.txt", "\"" + name + "\",\n");
+					//	string msg = "finished " + name.Replace("HighEnergyParticle", "Radbolt").Replace("Logic", "");
+					//	Console.WriteLine(msg);
+
+					//	Message i = new GenericMessage(msg, msg, msg);
+					//	Messenger.Instance.QueueMessage(i);
+					//	last5.Enqueue(i);
+					//	Console.WriteLine("last5.Count " + last5.Count);
+					//	if (last5.Count > 5)
+     //                   {
+					//		Message toRemove = last5.Dequeue();
+					//		Messenger.Instance.DequeueMessage();
+					//	}
+					//}
+
 
 
 				}
@@ -97,15 +118,6 @@ namespace OxygenNotIncluded.Mods.buildingNotifications
 			}
         }
 
-		//static Notifier notifier;
-		//[HarmonyPatch(typeof(Notifier), "Add")]
-		//public static class NotifierOnPrefabInit
-		//{
-		//	internal static void Postfix(Notifier __instance)
-		//	{
-		//		notifier = __instance;
 
-		//	}
-		//}
 	}
 }
